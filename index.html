@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Gamedev Canvas Workshop</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="780" height="520"></canvas>
+
+<script>
+	let canvas = document.getElementById("myCanvas");
+	let ctx = canvas.getContext("2d");
+	// net dimensions
+	let netWidth = 200;
+	let netHeight = 50;
+	let netX = (canvas.width/2)-(netWidth/2);
+	let netY = canvas.height - (20 + netHeight);
+	// goalie dimension
+	let goalieWidth = 40;
+	let goalieHeight = 40;
+	let goalieX = (canvas.width/2)-(goalieWidth/2);
+	let goalieY = canvas.height - (goalieHeight + netHeight + 30); 
+	let rightPressed = false;
+	let leftPressed = false;
+	let upPressed = false;
+	let downPressed = false;
+
+	//keyhandlers
+	document.addEventListener("keydown", keydownHandler, false);
+	document.addEventListener("keyup", keyupHandler, false);
+
+	function keydownHandler(e) {
+		console.log(e.keyCode);
+		if(e.keyCode == 39) {
+			rightPressed = true;
+		} else if(e.keyCode == 37) {
+			leftPressed = true;
+		} else if(e.keyCode == 38) {
+			upPressed = true;
+		} else if(e.keyCode == 40) {
+			downPressed = true;
+		}
+	} 
+
+	function keyupHandler(e) {
+		let timeInt = 300;
+		if(e.keyCode == 39) {
+			setTimeout(()=>rightPressed = false, timeInt);
+		} else if(e.keyCode == 37) {
+			setTimeout(()=>leftPressed = false, timeInt);
+		} else if(e.keyCode == 38) {
+			setTimeout(()=>upPressed = false, timeInt);
+		} else if(e.keyCode == 40) {
+			setTimeout(()=>downPressed = false, timeInt);
+		}
+	}
+
+	function drawNet() {
+		ctx.beginPath();
+		ctx.rect(netX, netY, netWidth, netHeight);
+		ctx.fillStyle = "red";
+		ctx.fill();
+		ctx.closePath();
+	}
+
+	function drawCrease() {
+		ctx.beginPath();
+		ctx.arc(canvas.width/2, netY, netWidth/1.5, 0, Math.PI, true);
+		ctx.closePath();
+		ctx.lineWidth = 5;
+		ctx.fillStyle = "transparent";
+		ctx.fill();
+		ctx.strokeStyle = "blue";
+		ctx.stroke();
+	}
+
+	function drawGoalie() {
+		ctx.beginPath();
+		ctx.rect(goalieX, goalieY, goalieWidth, goalieHeight);
+		ctx.fillStyle = "green";
+		ctx.fill();
+	}
+
+	function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		drawNet();
+		drawCrease();
+		drawGoalie();
+
+		// goalie moving logic
+		if(rightPressed && goalieX < (canvas.width-goalieWidth)) {
+			goalieX += 6;
+		} else if(leftPressed && goalieX > 0) {
+			goalieX -= 6;
+		} else if(upPressed && goalieY > 0) {
+			goalieY -= 6;
+		} else if(downPressed && goalieY < (canvas.height-goalieHeight)) {
+			goalieY += 6;
+		}
+
+		requestAnimationFrame(draw);
+	}
+	
+	// create draw function
+	// draw hockey net
+	// draw crease
+	// draw goalie
+	// draw pucks
+	// add collision detection
+
+	draw();
+</script>
+
+</body>
+</html>
