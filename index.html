@@ -25,17 +25,20 @@
 	let goalieHeight = 40;
 	let goalieX = (canvas.width/2)-(goalieWidth/2);
 	let goalieY = canvas.height - (goalieHeight + netHeight + 30); 
+	let goalieSpeed = 6;
 	let rightPressed = false;
 	let leftPressed = false;
 	let upPressed = false;
 	let downPressed = false;
+	let lastPressed = [];
+	let velocity = 0;
 
 	//keyhandlers
 	document.addEventListener("keydown", keydownHandler, false);
 	document.addEventListener("keyup", keyupHandler, false);
 
 	function keydownHandler(e) {
-		console.log(e.keyCode);
+		velocity = goalieSpeed;
 		if(e.keyCode == 39) {
 			rightPressed = true;
 		} else if(e.keyCode == 37) {
@@ -45,18 +48,19 @@
 		} else if(e.keyCode == 40) {
 			downPressed = true;
 		}
+
+		lastPressed.unshift(e.keyCode);
 	} 
 
 	function keyupHandler(e) {
-		let timeInt = 300;
 		if(e.keyCode == 39) {
-			setTimeout(()=>rightPressed = false, timeInt);
+			rightPressed = false;
 		} else if(e.keyCode == 37) {
-			setTimeout(()=>leftPressed = false, timeInt);
+			leftPressed = false;
 		} else if(e.keyCode == 38) {
-			setTimeout(()=>upPressed = false, timeInt);
+			upPressed = false;
 		} else if(e.keyCode == 40) {
-			setTimeout(()=>downPressed = false, timeInt);
+			downPressed = false;
 		}
 	}
 
@@ -91,27 +95,53 @@
 		drawNet();
 		drawCrease();
 		drawGoalie();
+		console.log(velocity);
 
-		// goalie moving logic
+		// goalie moving logic - right
 		if(rightPressed && goalieX < (canvas.width-goalieWidth)) {
-			goalieX += 6;
-		} else if(leftPressed && goalieX > 0) {
-			goalieX -= 6;
-		} else if(upPressed && goalieY > 0) {
-			goalieY -= 6;
-		} else if(downPressed && goalieY < (canvas.height-goalieHeight)) {
-			goalieY += 6;
+			goalieX += goalieSpeed;
+		} else if(lastPressed[0] == 37 && lastPressed[1] == 39 && velocity > 0) {
+			velocity = 0;
+			goalieX = goalieX;
+			console.log('hockey stop');
+		} else if(lastPressed[0] == 39 && velocity > 0 && goalieX < (canvas.width-goalieWidth)) {
+			goalieX += velocity;
+			velocity = velocity-0.2;
+		} 
+
+		// goalie moving logic - left
+		if(leftPressed && goalieX > 0) {
+			goalieX -= goalieSpeed;
+		} else if(lastPressed[0] == 39 && lastPressed[1] == 37 && velocity > 0) {
+			velocity = 0;
+			goalieX = goalieX;
+			console.log('hockey stop');
+		} else if(lastPressed[0] == 37 && velocity > 0 && goalieX > 0) {
+			goalieX -= velocity;
+			velocity = velocity-0.2;
+		} 
+
+		// goalie moving logic - up
+		if(upPressed && goalieY > 0) {
+			goalieY -= goalieSpeed;
+		} else if(lastPressed[0] == 38 && velocity > 0 && goalieY > 0) {
+			goalieY -= velocity;
+			velocity = velocity-0.2;
+		} 
+
+		// goalie moving logic - down
+		if(downPressed && goalieY < (canvas.height-goalieHeight)) {
+			goalieY += goalieSpeed;
+		} else if(lastPressed[0] == 40 && velocity > 0 && goalieY < (canvas.height-goalieHeight)) {
+			goalieY += velocity;
+			velocity = velocity-0.2;
 		}
 
 		requestAnimationFrame(draw);
 	}
-	
-	// create draw function
-	// draw hockey net
-	// draw crease
-	// draw goalie
-	// draw pucks
-	// add collision detection
+	// stopping mechanics
+	// goalie diagonal movement	
+	// goalie net collision detection
 
 	draw();
 </script>
